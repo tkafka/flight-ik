@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ornithopter Wing Mechanism Designer</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #0f172a;
+  color: #e2e8f0;
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+#canvas-wrap { flex: 1; position: relative; background: #0f172a; }
+canvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
+
+#panel {
+  width: 310px;
+  min-width: 310px;
+  background: #1e293b;
+  padding: 14px 16px;
+  overflow-y: auto;
+  border-left: 1px solid #334155;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+#panel h1 { font-size: 14px; font-weight: 700; color: #f8fafc; margin-bottom: 6px; }
+.section {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.5px; color: #64748b;
+  margin: 8px 0 2px; padding-top: 6px; border-top: 1px solid #334155;
+}
+.ctrl { display: flex; align-items: center; gap: 6px; margin-bottom: 1px; }
+.ctrl label {
+  font-size: 11px; color: #94a3b8; min-width: 105px; flex-shrink: 0;
+  display: flex; align-items: center; gap: 5px;
+}
+.dot {
+  display: inline-block; width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+}
+.ctrl input[type="range"] {
+  flex: 1; -webkit-appearance: none; height: 3px;
+  background: #334155; border-radius: 2px; outline: none;
+}
+.ctrl input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 12px; height: 12px;
+  background: #3b82f6; border-radius: 50%; cursor: pointer;
+}
+.ctrl .val {
+  font-size: 11px; color: #3b82f6; font-weight: 700;
+  min-width: 44px; text-align: right; font-variant-numeric: tabular-nums;
+}
+.btns { display: flex; gap: 5px; margin-top: 6px; flex-wrap: wrap; }
+.btn {
+  padding: 5px 12px; border: 1px solid #475569; border-radius: 5px;
+  background: #1e293b; color: #e2e8f0; font-size: 11px; cursor: pointer;
+  transition: background 0.15s;
+}
+.btn:hover { background: #334155; }
+.btn.active { background: #3b82f6; border-color: #3b82f6; color: #fff; }
+
+#info {
+  margin-top: 8px; padding: 8px 10px; background: #0f172a;
+  border-radius: 6px; font-size: 11px; line-height: 1.8; border: 1px solid #1e293b;
+}
+#info b { color: #3b82f6; }
+#info .warn { color: #f59e0b; }
+.hint {
+  margin-top: 6px; font-size: 10px; color: #475569;
+  line-height: 1.5; font-style: italic;
+}
+</style>
+</head>
+<body>
+
+<div id="canvas-wrap"><canvas id="c"></canvas></div>
+
+<div id="panel">
+  <h1>Ornithopter Mechanism Designer</h1>
+
+  <div class="section">Klika / Crank Arm</div>
+  <div class="ctrl">
+    <label><span class="dot" style="background:#ef4444"></span>Crank Radius</label>
+    <input type="range" id="s-crankR" min="3" max="35" value="10" step="0.5">
+    <span class="val" id="v-crankR">10 mm</span>
+  </div>
+
+  <div class="section">Ojnice / Connecting Rod</div>
+  <div class="ctrl">
+    <label><span class="dot" style="background:#f59e0b"></span>Rod Length</label>
+    <input type="range" id="s-rodLen" min="15" max="120" value="55" step="1">
+    <span class="val" id="v-rodLen">55 mm</span>
+  </div>
+
+  <div class="section">Kridla / Wings</div>
+  <div class="ctrl">
+    <label><span class="dot" style="background:#e2e8f0"></span>Wing Length</label>
+    <input type="range" id="s-wingL" min="20" max="200" value="100" step="5">
+    <span class="val" id="v-wingL">100 mm</span>
+  </div>
+  <div class="ctrl">
+    <label><span class="dot" style="background:#a78bfa"></span>Attach Offset</label>
+    <input type="range" id="s-attOff" min="0" max="50" value="15" step="0.5">
+    <span class="val" id="v-attOff">15 mm</span>
+  </div>
+  <div class="ctrl">
+    <label><span class="dot" style="background:#22c55e"></span>Lever Arm</label>
+    <input type="range" id="s-lever" min="5" max="60" value="20" step="0.5">
+    <span class="val" id="v-lever">20 mm</span>
+  </div>
+  <div class="ctrl">
+    <label><span class="dot" style="background:#3b82f6"></span>Pivot Height</label>
+    <input type="range" id="s-pivH" min="25" max="160" value="60" step="1">
+    <span class="val" id="v-pivH">60 mm</span>
+  </div>
+  <div class="ctrl">
+    <label><span class="dot" style="background:#3b82f6"></span>Pivot Spread</label>
+    <input type="range" id="s-pivS" min="0" max="80" value="20" step="1">
+    <span class="val" id="v-pivS">20 mm</span>
+  </div>
+  <div class="ctrl">
+    <label><span class="dot" style="background:#22c55e"></span>Fixed Angle</label>
+    <input type="range" id="s-fixA" min="30" max="150" value="90" step="1">
+    <span class="val" id="v-fixA">90°</span>
+  </div>
+
+  <div class="section">Animace</div>
+  <div class="ctrl">
+    <label><span class="dot" style="background:#ef4444"></span>Pin Angle</label>
+    <input type="range" id="s-pinA" min="0" max="360" value="180" step="1">
+    <span class="val" id="v-pinA">180°</span>
+  </div>
+  <div class="ctrl">
+    <label>Speed</label>
+    <input type="range" id="s-speed" min="0" max="3" value="1" step="0.1">
+    <span class="val" id="v-speed">1.0x</span>
+  </div>
+
+  <div class="btns">
+    <button class="btn active" id="btn-play">Pause</button>
+    <button class="btn" id="btn-trail">Trail: ON</button>
+    <button class="btn" id="btn-reset">Reset</button>
+  </div>
+
+  <div id="info">
+    <div>Left Sweep:  <b id="i-sweepL">--</b></div>
+    <div>Right Sweep: <b id="i-sweepR">--</b></div>
+    <div>Left Flap:   <b id="i-angL">--</b></div>
+    <div>Right Flap:  <b id="i-angR">--</b></div>
+    <div id="i-status"></div>
+  </div>
+
+  <div class="hint">
+    Drag on the crank to manually rotate.<br>
+    Mouse wheel on canvas to step angle.<br>
+    Pin Angle controls the angle between crank pins.<br>
+    <span class="dot" style="background:#a78bfa"></span> = attachment point on wing
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  CONFIG  (lengths mm, angles degrees)
+// ============================================================
+const P = {
+  crankR: 10,     // crank arm radius (center to pin)
+  rodLen: 55,     // connecting rod length
+  lever:  20,     // lever arm / bracket length
+  attOff: 15,     // attachment offset along wing from pivot
+  wingL:  100,    // wing length (ray from pivot)
+  pivH:   60,     // pivot height above crank
+  pivS:   20,     // total spread between pivots
+  fixA:   90,     // fixed angle between wing and lever arm
+  pinA:   180,    // angle between crank pins (degrees)
+  speed:  1,
+};
+
+let angle   = 0;
+let playing = true;
+let showTrail = true;
+let lastT   = null;
+
+const cvs = document.getElementById('c');
+const ctx  = cvs.getContext('2d');
+let W, H, ox, oy, sc;
+
+let trail = null;
+let prevLE = { left: null, right: null };
+
+// ============================================================
+//  RESIZE
+// ============================================================
+function resize() {
+  const r = cvs.parentElement.getBoundingClientRect();
+  const dpr = devicePixelRatio || 1;
+  cvs.width  = r.width  * dpr;
+  cvs.height = r.height * dpr;
+  cvs.style.width  = r.width  + 'px';
+  cvs.style.height = r.height + 'px';
+  W = r.width; H = r.height;
+
+  const spanY = P.pivH + P.crankR + 50;
+  const spanX = P.wingL * 2 + P.pivS + 80;
+  sc = Math.min(W / spanX, H / (spanY + 50)) * 0.78;
+  sc = Math.max(sc, 0.5);
+  ox = W / 2;
+  oy = H * 0.62;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', () => { resize(); recomputeTrail(); });
+
+// ============================================================
+//  COORDINATE TRANSFORMS  (world: y UP)
+// ============================================================
+function SX(x) { return ox + x * sc; }
+function SY(y) { return oy - y * sc; }
+function WX(px) { return (px - ox) / sc; }
+function WY(py) { return (oy - py) / sc; }
+
+// ============================================================
+//  CIRCLE–CIRCLE INTERSECTION
+// ============================================================
+function ccInt(ax, ay, ra, bx, by, rb) {
+  const dx = bx - ax, dy = by - ay;
+  const d = Math.hypot(dx, dy);
+  if (d > ra + rb + 0.01 || d < Math.abs(ra - rb) - 0.01 || d < 1e-6) return null;
+  const a2 = (ra * ra - rb * rb + d * d) / (2 * d);
+  const h  = Math.sqrt(Math.max(0, ra * ra - a2 * a2));
+  const mx = ax + a2 * dx / d;
+  const my = ay + a2 * dy / d;
+  return [
+    { x: mx + h * dy / d, y: my - h * dx / d },
+    { x: mx - h * dy / d, y: my + h * dx / d },
+  ];
+}
+
+// ============================================================
+//  SOLVE ONE WING
+//
+//  The lever arm is attached at a point ON the wing, offset
+//  from the pivot by `attOff` mm. The bracket extends from that
+//  point at `fixA` degrees from the wing direction.
+//
+//  Key insight: the lever-end traces a circle of radius R_le
+//  around the pivot (rigid body), so we still use circle–circle
+//  intersection, then recover the wing angle via phase offset φ.
+//
+//  R_le = sqrt( (attOff + lever·cos(fixA))² + (lever·sin(fixA))² )
+//  φ    = atan2( lever·sin(fixA),  attOff + lever·cos(fixA) )
+//
+//  Right wing: wa = le_angle + φ
+//  Left wing:  wa = le_angle - φ
+// ============================================================
+function solveWing(side, theta) {
+  const isL = side === 'left';
+  const th = isL ? theta : theta + P.pinA * Math.PI / 180;
+
+  // Crank pin (CW visual)
+  const pin = {
+    x:  P.crankR * Math.cos(th),
+    y: -P.crankR * Math.sin(th),
+  };
+
+  // Wing pivot
+  const piv = {
+    x: isL ? -P.pivS / 2 : P.pivS / 2,
+    y: P.pivH,
+  };
+
+  // Effective radius & phase for the lever-end orbit
+  const faRad = P.fixA * Math.PI / 180;
+  const A = P.attOff + P.lever * Math.cos(faRad);
+  const B = P.lever * Math.sin(faRad);
+  const Rle = Math.hypot(A, B);
+  const phi = Math.atan2(B, A);
+
+  // Circle intersection: (pin, rodLen) ∩ (piv, Rle)
+  const pts = ccInt(pin.x, pin.y, P.rodLen, piv.x, piv.y, Rle);
+  if (!pts) return null;
+
+  // Continuity tracking
+  let le;
+  const prev = prevLE[side];
+  if (prev) {
+    const d0 = Math.hypot(pts[0].x - prev.x, pts[0].y - prev.y);
+    const d1 = Math.hypot(pts[1].x - prev.x, pts[1].y - prev.y);
+    le = d0 <= d1 ? pts[0] : pts[1];
+  } else {
+    le = pts[0].y < pts[1].y ? pts[0] : pts[1];
+  }
+  prevLE[side] = { x: le.x, y: le.y };
+
+  // Lever-end angle from pivot
+  const leAngle = Math.atan2(le.y - piv.y, le.x - piv.x);
+
+  // Wing angle
+  const wa = isL ? leAngle - phi : leAngle + phi;
+
+  // Wing tip
+  const tip = {
+    x: piv.x + P.wingL * Math.cos(wa),
+    y: piv.y + P.wingL * Math.sin(wa),
+  };
+
+  // Attachment point on wing (where bracket meets wing)
+  const att = {
+    x: piv.x + P.attOff * Math.cos(wa),
+    y: piv.y + P.attOff * Math.sin(wa),
+  };
+
+  // Flap angle (degrees, relative to horizontal)
+  const flapDeg = isL
+    ? (wa - Math.PI) * 180 / Math.PI
+    : wa * 180 / Math.PI;
+
+  return { pin, piv, le, att, wa, tip, flapDeg };
+}
+
+// ============================================================
+//  TRAIL
+// ============================================================
+function recomputeTrail() {
+  const N = 360;
+  const t = {
+    left: [], right: [],
+    lMin: Infinity, lMax: -Infinity,
+    rMin: Infinity, rMax: -Infinity,
+    ok: true,
+  };
+  const save = { left: prevLE.left, right: prevLE.right };
+  prevLE.left = null; prevLE.right = null;
+
+  for (let i = 0; i <= N; i++) {
+    const a = (i / N) * Math.PI * 2;
+    const ls = solveWing('left', a);
+    const rs = solveWing('right', a);
+    if (!ls || !rs) { t.ok = false; continue; }
+    t.left.push(ls);
+    t.right.push(rs);
+    if (ls.wa < t.lMin) t.lMin = ls.wa;
+    if (ls.wa > t.lMax) t.lMax = ls.wa;
+    if (rs.wa < t.rMin) t.rMin = rs.wa;
+    if (rs.wa > t.rMax) t.rMax = rs.wa;
+  }
+  prevLE.left = save.left; prevLE.right = save.right;
+  trail = t;
+}
+
+// ============================================================
+//  DRAWING HELPERS
+// ============================================================
+function dLine(x1, y1, x2, y2, color, w, dash) {
+  ctx.beginPath();
+  if (dash) ctx.setLineDash(dash);
+  ctx.moveTo(SX(x1), SY(y1));
+  ctx.lineTo(SX(x2), SY(y2));
+  ctx.strokeStyle = color; ctx.lineWidth = w; ctx.lineCap = 'round';
+  ctx.stroke();
+  if (dash) ctx.setLineDash([]);
+}
+
+function dCirc(x, y, rPx, fill, stroke, sw) {
+  ctx.beginPath();
+  ctx.arc(SX(x), SY(y), rPx, 0, Math.PI * 2);
+  if (fill)   { ctx.fillStyle = fill; ctx.fill(); }
+  if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = sw || 1; ctx.stroke(); }
+}
+
+function dText(text, px, py, color, align, font) {
+  ctx.font = font || '10px system-ui';
+  ctx.fillStyle = color || '#64748b';
+  ctx.textAlign = align || 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, px, py);
+  ctx.textAlign = 'left';
+}
+
+// ============================================================
+//  DRAW: GRID
+// ============================================================
+function drawGrid() {
+  const step = 10;
+  ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 0.5;
+  const xLo = -Math.ceil(ox / sc / step) * step;
+  const xHi =  Math.ceil((W - ox) / sc / step) * step;
+  const yLo = -Math.ceil((H - oy) / sc / step) * step;
+  const yHi =  Math.ceil(oy / sc / step) * step;
+  ctx.beginPath();
+  for (let x = xLo; x <= xHi; x += step) { ctx.moveTo(SX(x), 0); ctx.lineTo(SX(x), H); }
+  for (let y = yLo; y <= yHi; y += step) { ctx.moveTo(0, SY(y)); ctx.lineTo(W, SY(y)); }
+  ctx.stroke();
+  ctx.strokeStyle = '#334155'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, SY(0)); ctx.lineTo(W, SY(0)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(SX(0), 0); ctx.lineTo(SX(0), H); ctx.stroke();
+}
+
+// ============================================================
+//  DRAW: CRANK ARM
+// ============================================================
+function drawCrankArm(ls, rs) {
+  dCirc(0, 0, 5, '#475569', '#64748b', 1.5);
+  if (!ls || !rs) return;
+  dLine(ls.pin.x, ls.pin.y, rs.pin.x, rs.pin.y, '#64748b', 2);
+  ctx.beginPath();
+  ctx.arc(SX(0), SY(0), P.crankR * sc, 0, Math.PI * 2);
+  ctx.strokeStyle = '#33415580'; ctx.lineWidth = 1;
+  ctx.setLineDash([3, 4]); ctx.stroke(); ctx.setLineDash([]);
+}
+
+// ============================================================
+//  DRAW: TRAIL
+// ============================================================
+function drawTrail() {
+  if (!trail || !trail.ok || trail.left.length < 2) return;
+
+  const sides = [
+    { sols: trail.left,  minA: trail.lMin, maxA: trail.lMax },
+    { sols: trail.right, minA: trail.rMin, maxA: trail.rMax },
+  ];
+
+  for (const { sols, minA, maxA } of sides) {
+    if (sols.length === 0) continue;
+    const piv = sols[0].piv;
+    const pxR = P.wingL * sc;
+
+    let minS = sols[0], maxS = sols[0];
+    for (const s of sols) {
+      if (s.wa < minS.wa) minS = s;
+      if (s.wa > maxS.wa) maxS = s;
+    }
+
+    // Ghost wings at extremes
+    dLine(minS.piv.x, minS.piv.y, minS.tip.x, minS.tip.y, 'rgba(96,165,250,0.2)', 2);
+    dLine(maxS.piv.x, maxS.piv.y, maxS.tip.x, maxS.tip.y, 'rgba(96,165,250,0.2)', 2);
+
+    // Sweep sector
+    ctx.beginPath();
+    ctx.moveTo(SX(piv.x), SY(piv.y));
+    ctx.arc(SX(piv.x), SY(piv.y), pxR, -maxA, -minA);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(59,130,246,0.06)';
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(SX(piv.x), SY(piv.y), pxR, -maxA, -minA);
+    ctx.strokeStyle = 'rgba(59,130,246,0.22)'; ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Sweep label
+    const sweep = ((maxA - minA) * 180 / Math.PI).toFixed(1);
+    const midA = -(minA + maxA) / 2;
+    dText(sweep + '°',
+      SX(piv.x) + (pxR + 14) * Math.cos(midA),
+      SY(piv.y) + (pxR + 14) * Math.sin(midA),
+      'rgba(96,165,250,0.6)', 'center', '11px system-ui');
+
+    // Lever-end path trace
+    ctx.beginPath();
+    for (let i = 0; i < sols.length; i++) {
+      const p = sols[i].le;
+      if (i === 0) ctx.moveTo(SX(p.x), SY(p.y));
+      else ctx.lineTo(SX(p.x), SY(p.y));
+    }
+    ctx.closePath();
+    ctx.strokeStyle = 'rgba(34,197,94,0.18)'; ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+}
+
+// ============================================================
+//  DRAW: ONE SIDE
+// ============================================================
+function drawSide(sol) {
+  if (!sol) return;
+
+  // Connecting rod (pin → lever-end)
+  dLine(sol.pin.x, sol.pin.y, sol.le.x, sol.le.y, '#f59e0b', 2.5);
+
+  // Lever arm / bracket (attachment point on wing → lever-end)
+  dLine(sol.att.x, sol.att.y, sol.le.x, sol.le.y, '#22c55e', 2.5);
+
+  // Wing (ray: pivot → tip)
+  dLine(sol.piv.x, sol.piv.y, sol.tip.x, sol.tip.y, '#e2e8f0', 3.5);
+
+  // Attachment point on wing (purple dot)
+  dCirc(sol.att.x, sol.att.y, 3.5, '#a78bfa', '#c4b5fd', 1);
+
+  // Perpendicular tick at pivot
+  const t = 3;
+  const px = -Math.sin(sol.wa) * t, py = Math.cos(sol.wa) * t;
+  dLine(sol.piv.x - px, sol.piv.y - py, sol.piv.x + px, sol.piv.y + py, '#3b82f6', 1.5);
+
+  // Joints
+  dCirc(sol.pin.x, sol.pin.y, 4.5, '#ef4444', '#fca5a5', 1);   // crank pin
+  dCirc(sol.le.x,  sol.le.y,  3.5, '#f59e0b', '#fcd34d', 1);   // free joint
+  dCirc(sol.piv.x, sol.piv.y, 5,   '#3b82f6', '#93c5fd', 1.5); // wing pivot
+}
+
+// ============================================================
+//  DRAW: BODY
+// ============================================================
+function drawBody(ls, rs) {
+  if (!ls || !rs) return;
+  const h = 4;
+  ctx.fillStyle = '#334155';
+  const x1 = SX(ls.piv.x), x2 = SX(rs.piv.x), y = SY(ls.piv.y);
+  ctx.fillRect(x1 - 2, y - h, x2 - x1 + 4, h * 2);
+}
+
+// ============================================================
+//  DRAW: DIMENSIONS
+// ============================================================
+function drawDims(ls) {
+  if (!ls) return;
+
+  // Rod length
+  const rx = (ls.pin.x + ls.le.x) / 2;
+  const ry = (ls.pin.y + ls.le.y) / 2;
+  dText(P.rodLen + '', SX(rx) - 12, SY(ry), '#f59e0b70', 'right', '9px system-ui');
+
+  // Lever length
+  const lx = (ls.att.x + ls.le.x) / 2;
+  const ly = (ls.att.y + ls.le.y) / 2;
+  dText(P.lever + '', SX(lx) - 10, SY(ly), '#22c55e70', 'right', '9px system-ui');
+
+  // Attach offset
+  const ax = (ls.piv.x + ls.att.x) / 2;
+  const ay = (ls.piv.y + ls.att.y) / 2;
+  dText(P.attOff + '', SX(ax), SY(ay) - 10, '#a78bfa70', 'center', '9px system-ui');
+
+  // Pivot height
+  const px = SX(0) + 16;
+  ctx.beginPath(); ctx.setLineDash([2, 3]);
+  ctx.moveTo(px, SY(0)); ctx.lineTo(px, SY(P.pivH));
+  ctx.strokeStyle = '#47556970'; ctx.lineWidth = 1; ctx.stroke();
+  ctx.setLineDash([]);
+  dText(P.pivH + '', px + 8, (SY(0) + SY(P.pivH)) / 2, '#47556970', 'left', '9px system-ui');
+
+  // Crank radius
+  dText('r=' + P.crankR, SX(0) + P.crankR * sc + 8, SY(0) - 4, '#47556970', 'left', '9px system-ui');
+}
+
+// ============================================================
+//  MAIN DRAW
+// ============================================================
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  drawGrid();
+
+  const ls = solveWing('left',  angle);
+  const rs = solveWing('right', angle);
+
+  if (showTrail) drawTrail();
+
+  drawBody(ls, rs);
+  drawCrankArm(ls, rs);
+  drawSide(ls);
+  drawSide(rs);
+  drawDims(ls);
+
+  const st = document.getElementById('i-status');
+  if (!ls || !rs) {
+    st.innerHTML = '<span class="warn">Mechanism jammed! Adjust parameters.</span>';
+  } else {
+    st.textContent = '';
+  }
+
+  document.getElementById('i-angL').textContent = ls ? ls.flapDeg.toFixed(1) + '°' : '--';
+  document.getElementById('i-angR').textContent = rs ? rs.flapDeg.toFixed(1) + '°' : '--';
+
+  if (trail && trail.ok) {
+    const lS = (trail.lMax - trail.lMin) * 180 / Math.PI;
+    const rS = (trail.rMax - trail.rMin) * 180 / Math.PI;
+    document.getElementById('i-sweepL').textContent = lS.toFixed(1) + '°';
+    document.getElementById('i-sweepR').textContent = rS.toFixed(1) + '°';
+  }
+}
+
+// ============================================================
+//  ANIMATION
+// ============================================================
+function tick(t) {
+  if (lastT === null) lastT = t;
+  const dt = (t - lastT) / 1000;
+  lastT = t;
+  if (playing) angle += dt * P.speed * Math.PI;
+  draw();
+  requestAnimationFrame(tick);
+}
+
+// ============================================================
+//  MOUSE INTERACTION
+// ============================================================
+let dragging = false;
+
+cvs.addEventListener('mousedown', (e) => {
+  const mx = WX(e.offsetX), my = WY(e.offsetY);
+  if (Math.hypot(mx, my) < P.crankR * 2.5 + 10) {
+    dragging = true;
+    playing = false;
+    document.getElementById('btn-play').textContent = 'Play';
+    document.getElementById('btn-play').classList.remove('active');
+    setCrankMouse(e);
+  }
+});
+cvs.addEventListener('mousemove', (e) => { if (dragging) setCrankMouse(e); });
+window.addEventListener('mouseup', () => { dragging = false; });
+
+function setCrankMouse(e) {
+  const mx = WX(e.offsetX), my = WY(e.offsetY);
+  angle = Math.atan2(-my, mx);
+  prevLE.left = null; prevLE.right = null;
+  recomputeTrail();
+}
+
+cvs.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  angle += (e.deltaY > 0 ? 1 : -1) * Math.PI / 90;
+  prevLE.left = null; prevLE.right = null;
+}, { passive: false });
+
+// ============================================================
+//  UI SLIDERS
+// ============================================================
+const sliders = [
+  ['s-crankR', 'v-crankR', 'crankR', v => v + ' mm'],
+  ['s-rodLen', 'v-rodLen', 'rodLen', v => v + ' mm'],
+  ['s-lever',  'v-lever',  'lever',  v => v + ' mm'],
+  ['s-attOff', 'v-attOff', 'attOff', v => v + ' mm'],
+  ['s-wingL',  'v-wingL',  'wingL',  v => v + ' mm'],
+  ['s-pivH',   'v-pivH',   'pivH',   v => v + ' mm'],
+  ['s-pivS',   'v-pivS',   'pivS',   v => v + ' mm'],
+  ['s-fixA',   'v-fixA',   'fixA',   v => v + '°'],
+  ['s-pinA',   'v-pinA',   'pinA',   v => v + '°'],
+  ['s-speed',  'v-speed',  'speed',  v => parseFloat(v).toFixed(1) + 'x'],
+];
+
+function setupUI() {
+  for (const [sid, vid, key, fmt] of sliders) {
+    const sl = document.getElementById(sid);
+    const vl = document.getElementById(vid);
+    sl.addEventListener('input', () => {
+      P[key] = parseFloat(sl.value);
+      vl.textContent = fmt(sl.value);
+      prevLE.left = null; prevLE.right = null;
+      resize();
+      recomputeTrail();
+    });
+  }
+
+  document.getElementById('btn-play').addEventListener('click', function () {
+    playing = !playing;
+    this.textContent = playing ? 'Pause' : 'Play';
+    this.classList.toggle('active', playing);
+    if (playing) lastT = null;
+  });
+
+  document.getElementById('btn-trail').addEventListener('click', function () {
+    showTrail = !showTrail;
+    this.textContent = 'Trail: ' + (showTrail ? 'ON' : 'OFF');
+  });
+
+  document.getElementById('btn-reset').addEventListener('click', () => {
+    angle = 0;
+    prevLE.left = null; prevLE.right = null;
+    recomputeTrail();
+  });
+}
+
+// ============================================================
+//  INIT
+// ============================================================
+resize();
+setupUI();
+recomputeTrail();
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
