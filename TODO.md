@@ -73,22 +73,22 @@ A pro sparkline přidat příznak, který je true, pokud jsme získali celý roz
 
 --
 
-for numbers, make a helper that will
-- wrap them in nobr (or similar style)
-- ensure tabular numeric style (fixed width numbers)
+Pro čísla vytvořit helper, který bude:
+- zabalovat je do nobr (nebo podobného stylu)
+- zajistí tabulární numerický styl (čísla s pevnou šířkou)
 
-for numeric inputs, make a component with up/down controls to adjust eg. angle degree by degree, sizes by 0.5mm, anim speed by 0.1
-
---
-
-a table-like layout to make the metric names, throbbers, numbers, +- align would be nice
-
-and utilize the numeric helper above also for the "sum, avg" metrics
-
-ctrl needs to have all the +, - ... aligned in the whole control list, as if it was a table layout (with headers spanning all the columns)
+Pro číselné vstupy vytvořit komponentu s tlačítky nahoru/dolů pro úpravu, např. úhel po stupních, rozměry po 0.5 mm, rychlost animace po 0.1
 
 --
 
-great. and the model can be larger - there is now too much space around it horizontally.
+Tabulkové rozložení, aby názvy metrik, posuvníky, čísla a +/- byly zarovnané, by bylo fajn.
 
-Then come up with a way to make this work on a mobile - probably a 2:1 ratio canvas on top, and the sidebar below in a vertically scrollable container?
+Využít číselný helper výše i pro metriky "sum, avg".
+
+Ovládací prvky potřebují mít všechna +, - ... zarovnaná v celém seznamu, jako by to byl tabulkový layout (s nadpisy přes všechny sloupce).
+
+--
+
+Skvělé. A model může být větší — teď je kolem něj horizontálně příliš mnoho místa.
+
+Pak vymyslet způsob, jak to zprovoznit na mobilu — pravděpodobně canvas s poměrem 2:1 nahoře a postranní panel pod ním ve vertikálně scrollovatelném kontejneru?
