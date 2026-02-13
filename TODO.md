@@ -91,4 +91,8 @@ Ovládací prvky potřebují mít všechna +, - ... zarovnaná v celém seznamu,
 
 Skvělé. A model může být větší — teď je kolem něj horizontálně příliš mnoho místa.
 
-Pak vymyslet způsob, jak to zprovoznit na mobilu — pravděpodobně canvas s poměrem 2:1 nahoře a postranní panel pod ním ve vertikálně scrollovatelném kontejneru?
+Pak vymyslet způsob, jak to zprovoznit na mobilu — pravděpodobně canvas s poměrem 2:1 nahoře a postranní panel pod ním ve vertikálně scrollovatelném kontejneru.
+
+--
+
+This is a public github repo, publish it as gh pages, ideally so that commiting to main would immediately publish the new changes.
