@@ -32,3 +32,41 @@ Přečti si @TODO.md a @index.html co jsme zatím udělali.  Tak teďka potřebu
 Prostě obvykle create, edit, update, delete. 
 
 Zároveň potřebuju ještě možnost mít si nastavit úhel u kliky, protože teď tam máme 180 stupňů, ale vypadá to, že ho budeme potřebovat nastavit i na jiné úhly. A ještě prosím, každou nastavitelnou věc pojmenuj anglicky i česky. Může to být třeba dva názvy pod sebou, větší a menší. Nebo třeba anglicky první a pod tím česky uppercase menším. 
+
+---
+
+1. Make these the default: file:///Users/kafkat/Dev/flight-ik/index.html#crankR=10.5&rodLen=15&lever=41.5&attOff=18.5&wingL=100&pivH=35&pivS=22&fixA=125&pinA=175&speed=1
+
+2. Push the url to browser so that we can use back button (browser changes url, we update the controls)
+
+3. Update the url after stopping the drag of controls, not immediately, so that user can go back with meaningful steps with browser back button
+
+4. To the bottom of the sidebar, add buttons to export and import all the presets + current settings as JSON
+
+And use tab visibility API to pause the simulation when user can't see it
+
+---
+
+and in info panel, 
+1. transform the L and R flap so that they show similar angle (the wings are almost symmetrical)
+
+2. Expose the difference between wing angles as a new info row.
+
+---
+
+The flap angles don't match, should be that 0 = horizontal (right wing: 0 = west, left wing: 0 = east).
+The assymetry - transform to -180 ... 180
+
+Also for the asymmetry, make an inline sparkline line chart where x = crank angle in deg, y = asymmetry (data doesn't have to be precounted, just record it as the simulation runs). Next to it, compute a metric that would describe how well do the two wings match - a sum of abs asymmetry over the chart.
+
+(to counter for the fact that not every exact angle will be recorded, have the x data bucketed to 5 degrees)
+
+--
+
+Great! and also add L and R wing angle into the diagram as well.
+
+Plus, the sidebar sticks to right side when making the window larger, but then making window narrower preserves the central area width, clipping the sidebar
+
+--
+
+And for the sparkline, add a flag that is true if we got the whole range (0-360) of data since the last controls change - if yes, highlight the sum and avg (eg. slight orange background, rounded corners) to indicate they are valid. And when saving preset, if the metrics are valid, save them, and show in the preset list (again, orange highlight) next to name.
