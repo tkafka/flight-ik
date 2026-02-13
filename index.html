@@ -14,7 +14,7 @@ body {
   height: 100vh;
   overflow: hidden;
 }
-#canvas-wrap { flex: 1; position: relative; background: #0f172a; }
+#canvas-wrap { flex: 1; min-width: 0; position: relative; background: #0f172a; overflow: hidden; }
 canvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
 
 #panel {
@@ -75,6 +75,14 @@ canvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
 .spark-row { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
 .spark-row svg { flex-shrink: 0; }
 .spark-metric { font-size: 10px; color: #94a3b8; white-space: nowrap; }
+.spark-metric.spark-valid {
+  background: rgba(245,158,11,0.18); border-radius: 4px; padding: 1px 5px;
+  color: #f59e0b;
+}
+.p-metric {
+  font-size: 9px; color: #f59e0b; background: rgba(245,158,11,0.15);
+  border-radius: 3px; padding: 0 4px; margin-left: auto; white-space: nowrap; flex-shrink: 0;
+}
 .hint {
   margin-top: 6px; font-size: 10px; color: #475569;
   line-height: 1.5; font-style: italic;
@@ -278,9 +286,11 @@ function normDeg(d) {
   return d;
 }
 
-const ASYM_BUCKETS = 72;
+const ASYM_BUCKETS = 36;
 const asymData = new Float32Array(ASYM_BUCKETS);
 const asymFilled = new Uint8Array(ASYM_BUCKETS);
+let asymFullRange = false;
+let lastValidMetrics = null;
 
 // ============================================================
 //  RESIZE
@@ -636,6 +646,24 @@ function drawDims(ls) {
 }
 
 // ============================================================
+//  DRAW: WING ANGLES
+// ============================================================
+function drawAngles(ls, rs) {
+  if (ls) {
+    const a = normDeg(ls.flapDeg);
+    const px = SX(ls.piv.x) - 14;
+    const py = SY(ls.piv.y) - 14;
+    dText(a.toFixed(1) + '°', px, py, '#94a3b8', 'right', 'bold 11px system-ui');
+  }
+  if (rs) {
+    const a = normDeg(-rs.flapDeg);
+    const px = SX(rs.piv.x) + 14;
+    const py = SY(rs.piv.y) - 14;
+    dText(a.toFixed(1) + '°', px, py, '#94a3b8', 'left', 'bold 11px system-ui');
+  }
+}
+
+// ============================================================
 //  MAIN DRAW
 // ============================================================
 function draw() {
@@ -652,6 +680,7 @@ function draw() {
   drawSide(ls);
   drawSide(rs);
   drawDims(ls);
+  drawAngles(ls, rs);
 
   const st = document.getElementById('i-status');
   if (!ls || !rs) {
@@ -670,7 +699,7 @@ function draw() {
 
   if (asym !== null) {
     const crankDeg = ((angle * 180 / Math.PI) % 360 + 360) % 360;
-    const bucket = Math.floor(crankDeg / 5) % ASYM_BUCKETS;
+    const bucket = Math.floor(crankDeg / 10) % ASYM_BUCKETS;
     asymData[bucket] = asym;
     asymFilled[bucket] = 1;
     renderSparkline();
@@ -717,15 +746,33 @@ function renderSparkline() {
     first = false;
   }
 
+  const crankDeg = ((angle * 180 / Math.PI) % 360 + 360) % 360;
+  const curBucket = Math.floor(crankDeg / 10) % ASYM_BUCKETS;
+  let dotSvg = '';
+  if (asymFilled[curBucket]) {
+    const dx = xOf(curBucket).toFixed(1);
+    const dy = yOf(asymData[curBucket]).toFixed(1);
+    dotSvg = '<circle cx="' + dx + '" cy="' + dy + '" r="3" fill="#f59e0b"/>';
+  }
+
   svg.innerHTML =
     '<line x1="0" y1="' + zeroY.toFixed(1) + '" x2="' + W + '" y2="' + zeroY.toFixed(1) + '" stroke="#334155" stroke-width="0.5" stroke-dasharray="2,2"/>' +
-    '<path d="' + path + '" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-linejoin="round"/>';
+    '<path d="' + path + '" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-linejoin="round"/>' +
+    dotSvg;
 
+  asymFullRange = (filledCount === ASYM_BUCKETS);
   const avgAbs = absSum / filledCount;
-  document.getElementById('i-match').innerHTML =
+
+  if (asymFullRange) {
+    lastValidMetrics = { sum: absSum, avg: avgAbs };
+  }
+
+  const el = document.getElementById('i-match');
+  el.innerHTML =
     'Σ|a|=' + absSum.toFixed(0) + '° &nbsp; avg=' + avgAbs.toFixed(1) + '°' +
     ' <span style="color:' + (avgAbs < 2 ? '#22c55e' : avgAbs < 5 ? '#f59e0b' : '#ef4444') + '">' +
     (avgAbs < 2 ? '★' : avgAbs < 5 ? '○' : '✖') + '</span>';
+  el.classList.toggle('spark-valid', asymFullRange);
 }
 
 // ============================================================
@@ -966,6 +1013,13 @@ function renderPresets() {
     });
 
     item.appendChild(nameEl);
+    if (pr.metrics) {
+      const badge = document.createElement('span');
+      badge.className = 'p-metric';
+      badge.textContent = 'avg ' + pr.metrics.avg.toFixed(1) + '°';
+      badge.title = 'Σ|a|=' + pr.metrics.sum.toFixed(0) + '°  avg=' + pr.metrics.avg.toFixed(1) + '°';
+      item.appendChild(badge);
+    }
     item.appendChild(renBtn);
     item.appendChild(delBtn);
     list.appendChild(item);
@@ -980,7 +1034,11 @@ function setupPresets() {
     const data = {};
     for (const k of PARAM_KEYS) data[k] = P[k];
     const presets = loadPresets();
-    presets.push({ name, data });
+    const entry = { name, data };
+    if (asymFullRange && lastValidMetrics) {
+      entry.metrics = { sum: lastValidMetrics.sum, avg: lastValidMetrics.avg };
+    }
+    presets.push(entry);
     savePresetsLS(presets);
     nameInput.value = '';
     renderPresets();
