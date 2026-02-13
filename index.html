@@ -140,20 +140,20 @@ canvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
   <div class="section">Crank Arm · KLIKA</div>
   <div class="ctrl">
     <label><span class="dot" style="background:#ef4444"></span><span class="lbl-text"><span class="lbl-en">Crank Radius</span><span class="lbl-cz">POLOMĚR KLIKY</span></span></label>
-    <input type="range" id="s-crankR" min="3" max="35" value="10" step="0.5">
-    <span class="val" id="v-crankR">10 mm</span>
+    <input type="range" id="s-crankR" min="3" max="35" value="10.5" step="0.5">
+    <span class="val" id="v-crankR">10.5 mm</span>
   </div>
   <div class="ctrl">
     <label><span class="dot" style="background:#ef4444"></span><span class="lbl-text"><span class="lbl-en">Pin Angle</span><span class="lbl-cz">ÚHEL KLIKY</span></span></label>
-    <input type="range" id="s-pinA" min="0" max="360" value="180" step="1">
-    <span class="val" id="v-pinA">180°</span>
+    <input type="range" id="s-pinA" min="0" max="360" value="175" step="1">
+    <span class="val" id="v-pinA">175°</span>
   </div>
 
   <div class="section">Connecting Rod · OJNICE</div>
   <div class="ctrl">
     <label><span class="dot" style="background:#f59e0b"></span><span class="lbl-text"><span class="lbl-en">Rod Length</span><span class="lbl-cz">DÉLKA OJNICE</span></span></label>
-    <input type="range" id="s-rodLen" min="15" max="120" value="55" step="1">
-    <span class="val" id="v-rodLen">55 mm</span>
+    <input type="range" id="s-rodLen" min="15" max="120" value="15" step="1">
+    <span class="val" id="v-rodLen">15 mm</span>
   </div>
 
   <div class="section">Wings · KŘÍDLA</div>
@@ -164,28 +164,28 @@ canvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
   </div>
   <div class="ctrl">
     <label><span class="dot" style="background:#a78bfa"></span><span class="lbl-text"><span class="lbl-en">Attach Offset</span><span class="lbl-cz">ODSAZENÍ UCHYCENÍ</span></span></label>
-    <input type="range" id="s-attOff" min="0" max="50" value="15" step="0.5">
-    <span class="val" id="v-attOff">15 mm</span>
+    <input type="range" id="s-attOff" min="0" max="50" value="18.5" step="0.5">
+    <span class="val" id="v-attOff">18.5 mm</span>
   </div>
   <div class="ctrl">
     <label><span class="dot" style="background:#22c55e"></span><span class="lbl-text"><span class="lbl-en">Lever Arm</span><span class="lbl-cz">PÁKA</span></span></label>
-    <input type="range" id="s-lever" min="5" max="60" value="20" step="0.5">
-    <span class="val" id="v-lever">20 mm</span>
+    <input type="range" id="s-lever" min="5" max="60" value="41.5" step="0.5">
+    <span class="val" id="v-lever">41.5 mm</span>
   </div>
   <div class="ctrl">
     <label><span class="dot" style="background:#3b82f6"></span><span class="lbl-text"><span class="lbl-en">Pivot Height</span><span class="lbl-cz">VÝŠKA ČEPU</span></span></label>
-    <input type="range" id="s-pivH" min="25" max="160" value="60" step="1">
-    <span class="val" id="v-pivH">60 mm</span>
+    <input type="range" id="s-pivH" min="25" max="160" value="35" step="1">
+    <span class="val" id="v-pivH">35 mm</span>
   </div>
   <div class="ctrl">
     <label><span class="dot" style="background:#3b82f6"></span><span class="lbl-text"><span class="lbl-en">Pivot Spread</span><span class="lbl-cz">ROZTEČ ČEPŮ</span></span></label>
-    <input type="range" id="s-pivS" min="0" max="80" value="20" step="1">
-    <span class="val" id="v-pivS">20 mm</span>
+    <input type="range" id="s-pivS" min="0" max="80" value="22" step="1">
+    <span class="val" id="v-pivS">22 mm</span>
   </div>
   <div class="ctrl">
     <label><span class="dot" style="background:#22c55e"></span><span class="lbl-text"><span class="lbl-en">Fixed Angle</span><span class="lbl-cz">PEVNÝ ÚHEL</span></span></label>
-    <input type="range" id="s-fixA" min="30" max="150" value="90" step="1">
-    <span class="val" id="v-fixA">90°</span>
+    <input type="range" id="s-fixA" min="30" max="150" value="125" step="1">
+    <span class="val" id="v-fixA">125°</span>
   </div>
 
   <div class="section">Animation · ANIMACE</div>
@@ -226,6 +226,11 @@ canvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
       <button id="btn-save-preset">Save</button>
     </div>
     <div class="preset-list" id="preset-list"></div>
+    <div class="url-row" style="margin-top:8px">
+      <button id="btn-export-json">Export JSON</button>
+      <button id="btn-import-json">Import JSON</button>
+    </div>
+    <input type="file" id="import-file" accept=".json" style="display:none">
   </div>
 </div>
 
@@ -234,15 +239,15 @@ canvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
 //  CONFIG  (lengths mm, angles degrees)
 // ============================================================
 const P = {
-  crankR: 10,     // crank arm radius (center to pin)
-  rodLen: 55,     // connecting rod length
-  lever:  20,     // lever arm / bracket length
-  attOff: 15,     // attachment offset along wing from pivot
+  crankR: 10.5,   // crank arm radius (center to pin)
+  rodLen: 15,     // connecting rod length
+  lever:  41.5,   // lever arm / bracket length
+  attOff: 18.5,   // attachment offset along wing from pivot
   wingL:  100,    // wing length (ray from pivot)
-  pivH:   60,     // pivot height above crank
-  pivS:   20,     // total spread between pivots
-  fixA:   90,     // fixed angle between wing and lever arm
-  pinA:   180,    // angle between crank pins (degrees)
+  pivH:   35,     // pivot height above crank
+  pivS:   22,     // total spread between pivots
+  fixA:   125,    // fixed angle between wing and lever arm
+  pinA:   175,    // angle between crank pins (degrees)
   speed:  1,
 };
 
@@ -650,7 +655,10 @@ function draw() {
 // ============================================================
 //  ANIMATION
 // ============================================================
+let tabVisible = true;
+
 function tick(t) {
+  if (!tabVisible) { lastT = null; requestAnimationFrame(tick); return; }
   if (lastT === null) lastT = t;
   const dt = (t - lastT) / 1000;
   lastT = t;
@@ -658,6 +666,11 @@ function tick(t) {
   draw();
   requestAnimationFrame(tick);
 }
+
+document.addEventListener('visibilitychange', () => {
+  tabVisible = !document.hidden;
+  if (tabVisible) lastT = null;
+});
 
 // ============================================================
 //  MOUSE INTERACTION
@@ -716,7 +729,9 @@ function setupUI() {
       prevLE.left = null; prevLE.right = null;
       resize();
       recomputeTrail();
-      syncToURL();
+    });
+    sl.addEventListener('change', () => {
+      pushToURL();
     });
   }
 
@@ -767,6 +782,22 @@ function syncToURL() {
   history.replaceState(null, '', paramsToHash());
 }
 
+function pushToURL() {
+  const newHash = paramsToHash();
+  if (location.hash !== newHash) {
+    history.pushState(null, '', newHash);
+  }
+}
+
+window.addEventListener('popstate', () => {
+  if (loadFromHash()) {
+    syncSlidersFromP();
+    prevLE.left = null; prevLE.right = null;
+    resize();
+    recomputeTrail();
+  }
+});
+
 function syncSlidersFromP() {
   for (const [sid, vid, key, fmt] of sliders) {
     const sl = document.getElementById(sid);
@@ -813,7 +844,7 @@ function renderPresets() {
       }
       syncSlidersFromP();
       prevLE.left = null; prevLE.right = null;
-      resize(); recomputeTrail(); syncToURL();
+      resize(); recomputeTrail(); pushToURL();
     });
 
     const renBtn = document.createElement('button');
@@ -888,6 +919,51 @@ function setupPresets() {
     }).catch(() => {
       prompt('Copy this URL:', url);
     });
+  });
+
+  document.getElementById('btn-export-json').addEventListener('click', () => {
+    const payload = {
+      current: {},
+      presets: loadPresets(),
+    };
+    for (const k of PARAM_KEYS) payload.current[k] = P[k];
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'ornithopter-settings.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  document.getElementById('btn-import-json').addEventListener('click', () => {
+    document.getElementById('import-file').value = '';
+    document.getElementById('import-file').click();
+  });
+
+  document.getElementById('import-file').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const payload = JSON.parse(ev.target.result);
+        if (payload.current) {
+          for (const k of PARAM_KEYS) {
+            if (payload.current[k] !== undefined) P[k] = payload.current[k];
+          }
+          syncSlidersFromP();
+          prevLE.left = null; prevLE.right = null;
+          resize(); recomputeTrail(); pushToURL();
+        }
+        if (Array.isArray(payload.presets)) {
+          savePresetsLS(payload.presets);
+          renderPresets();
+        }
+      } catch (err) {
+        alert('Invalid JSON file: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
   });
 
   renderPresets();
