@@ -18,8 +18,8 @@ body {
 canvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
 
 #panel {
-  width: 310px;
-  min-width: 310px;
+  width: 400px;
+  min-width: 400px;
   background: #1e293b;
   padding: 14px 16px;
   overflow-y: auto;
@@ -36,9 +36,12 @@ canvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
 }
 .ctrl { display: flex; align-items: center; gap: 6px; margin-bottom: 1px; }
 .ctrl label {
-  font-size: 11px; color: #94a3b8; min-width: 105px; flex-shrink: 0;
-  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; color: #94a3b8; min-width: 115px; flex-shrink: 0;
+  display: flex; align-items: flex-start; gap: 5px;
 }
+.lbl-text { display: flex; flex-direction: column; line-height: 1.2; }
+.lbl-en { font-size: 11px; color: #94a3b8; }
+.lbl-cz { font-size: 9px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
 .dot {
   display: inline-block; width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
 }
@@ -73,6 +76,58 @@ canvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
   margin-top: 6px; font-size: 10px; color: #475569;
   line-height: 1.5; font-style: italic;
 }
+
+/* Presets */
+.presets-section {
+  margin-top: 8px; padding-top: 8px; border-top: 1px solid #334155;
+}
+.presets-section h2 {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1.5px; color: #64748b; margin-bottom: 6px;
+}
+.preset-save-row {
+  display: flex; gap: 4px; margin-bottom: 6px;
+}
+.preset-save-row input {
+  flex: 1; padding: 4px 8px; border: 1px solid #475569; border-radius: 4px;
+  background: #0f172a; color: #e2e8f0; font-size: 11px; outline: none;
+}
+.preset-save-row input:focus { border-color: #3b82f6; }
+.preset-save-row button {
+  padding: 4px 10px; border: 1px solid #475569; border-radius: 4px;
+  background: #3b82f6; color: #fff; font-size: 11px; cursor: pointer;
+  white-space: nowrap;
+}
+.preset-save-row button:hover { background: #2563eb; }
+.preset-list { display: flex; flex-direction: column; gap: 3px; max-height: 180px; overflow-y: auto; }
+.preset-item {
+  display: flex; align-items: center; gap: 4px; padding: 4px 6px;
+  background: #0f172a; border: 1px solid #1e293b; border-radius: 4px;
+  font-size: 11px;
+}
+.preset-item.active { border-color: #3b82f6; }
+.preset-item .p-name {
+  flex: 1; cursor: pointer; color: #e2e8f0; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+}
+.preset-item .p-name:hover { color: #3b82f6; }
+.preset-item .p-name input {
+  width: 100%; padding: 1px 4px; border: 1px solid #3b82f6; border-radius: 3px;
+  background: #1e293b; color: #e2e8f0; font-size: 11px; outline: none;
+}
+.preset-item .p-btn {
+  background: none; border: none; color: #64748b; cursor: pointer;
+  font-size: 12px; padding: 0 2px; line-height: 1;
+}
+.preset-item .p-btn:hover { color: #e2e8f0; }
+.preset-item .p-btn.del:hover { color: #ef4444; }
+.preset-empty { font-size: 10px; color: #475569; font-style: italic; }
+.url-row { display: flex; gap: 4px; margin-bottom: 6px; }
+.url-row button {
+  flex: 1; padding: 4px 10px; border: 1px solid #475569; border-radius: 4px;
+  background: #1e293b; color: #e2e8f0; font-size: 11px; cursor: pointer;
+}
+.url-row button:hover { background: #334155; }
 </style>
 </head>
 <body>
@@ -82,60 +137,60 @@ canvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
 <div id="panel">
   <h1>Ornithopter Mechanism Designer</h1>
 
-  <div class="section">Klika / Crank Arm</div>
+  <div class="section">Crank Arm · KLIKA</div>
   <div class="ctrl">
-    <label><span class="dot" style="background:#ef4444"></span>Crank Radius</label>
+    <label><span class="dot" style="background:#ef4444"></span><span class="lbl-text"><span class="lbl-en">Crank Radius</span><span class="lbl-cz">POLOMĚR KLIKY</span></span></label>
     <input type="range" id="s-crankR" min="3" max="35" value="10" step="0.5">
     <span class="val" id="v-crankR">10 mm</span>
   </div>
-
-  <div class="section">Ojnice / Connecting Rod</div>
   <div class="ctrl">
-    <label><span class="dot" style="background:#f59e0b"></span>Rod Length</label>
+    <label><span class="dot" style="background:#ef4444"></span><span class="lbl-text"><span class="lbl-en">Pin Angle</span><span class="lbl-cz">ÚHEL KLIKY</span></span></label>
+    <input type="range" id="s-pinA" min="0" max="360" value="180" step="1">
+    <span class="val" id="v-pinA">180°</span>
+  </div>
+
+  <div class="section">Connecting Rod · OJNICE</div>
+  <div class="ctrl">
+    <label><span class="dot" style="background:#f59e0b"></span><span class="lbl-text"><span class="lbl-en">Rod Length</span><span class="lbl-cz">DÉLKA OJNICE</span></span></label>
     <input type="range" id="s-rodLen" min="15" max="120" value="55" step="1">
     <span class="val" id="v-rodLen">55 mm</span>
   </div>
 
-  <div class="section">Kridla / Wings</div>
+  <div class="section">Wings · KŘÍDLA</div>
   <div class="ctrl">
-    <label><span class="dot" style="background:#e2e8f0"></span>Wing Length</label>
+    <label><span class="dot" style="background:#e2e8f0"></span><span class="lbl-text"><span class="lbl-en">Wing Length</span><span class="lbl-cz">DÉLKA KŘÍDLA</span></span></label>
     <input type="range" id="s-wingL" min="20" max="200" value="100" step="5">
     <span class="val" id="v-wingL">100 mm</span>
   </div>
   <div class="ctrl">
-    <label><span class="dot" style="background:#a78bfa"></span>Attach Offset</label>
+    <label><span class="dot" style="background:#a78bfa"></span><span class="lbl-text"><span class="lbl-en">Attach Offset</span><span class="lbl-cz">ODSAZENÍ UCHYCENÍ</span></span></label>
     <input type="range" id="s-attOff" min="0" max="50" value="15" step="0.5">
     <span class="val" id="v-attOff">15 mm</span>
   </div>
   <div class="ctrl">
-    <label><span class="dot" style="background:#22c55e"></span>Lever Arm</label>
+    <label><span class="dot" style="background:#22c55e"></span><span class="lbl-text"><span class="lbl-en">Lever Arm</span><span class="lbl-cz">PÁKA</span></span></label>
     <input type="range" id="s-lever" min="5" max="60" value="20" step="0.5">
     <span class="val" id="v-lever">20 mm</span>
   </div>
   <div class="ctrl">
-    <label><span class="dot" style="background:#3b82f6"></span>Pivot Height</label>
+    <label><span class="dot" style="background:#3b82f6"></span><span class="lbl-text"><span class="lbl-en">Pivot Height</span><span class="lbl-cz">VÝŠKA ČEPU</span></span></label>
     <input type="range" id="s-pivH" min="25" max="160" value="60" step="1">
     <span class="val" id="v-pivH">60 mm</span>
   </div>
   <div class="ctrl">
-    <label><span class="dot" style="background:#3b82f6"></span>Pivot Spread</label>
+    <label><span class="dot" style="background:#3b82f6"></span><span class="lbl-text"><span class="lbl-en">Pivot Spread</span><span class="lbl-cz">ROZTEČ ČEPŮ</span></span></label>
     <input type="range" id="s-pivS" min="0" max="80" value="20" step="1">
     <span class="val" id="v-pivS">20 mm</span>
   </div>
   <div class="ctrl">
-    <label><span class="dot" style="background:#22c55e"></span>Fixed Angle</label>
+    <label><span class="dot" style="background:#22c55e"></span><span class="lbl-text"><span class="lbl-en">Fixed Angle</span><span class="lbl-cz">PEVNÝ ÚHEL</span></span></label>
     <input type="range" id="s-fixA" min="30" max="150" value="90" step="1">
     <span class="val" id="v-fixA">90°</span>
   </div>
 
-  <div class="section">Animace</div>
+  <div class="section">Animation · ANIMACE</div>
   <div class="ctrl">
-    <label><span class="dot" style="background:#ef4444"></span>Pin Angle</label>
-    <input type="range" id="s-pinA" min="0" max="360" value="180" step="1">
-    <span class="val" id="v-pinA">180°</span>
-  </div>
-  <div class="ctrl">
-    <label>Speed</label>
+    <label><span class="lbl-text"><span class="lbl-en">Speed</span><span class="lbl-cz">RYCHLOST</span></span></label>
     <input type="range" id="s-speed" min="0" max="3" value="1" step="0.1">
     <span class="val" id="v-speed">1.0x</span>
   </div>
@@ -159,6 +214,18 @@ canvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
     Mouse wheel on canvas to step angle.<br>
     Pin Angle controls the angle between crank pins.<br>
     <span class="dot" style="background:#a78bfa"></span> = attachment point on wing
+  </div>
+
+  <div class="presets-section">
+    <h2>Presets · PŘEDVOLBY</h2>
+    <div class="url-row">
+      <button id="btn-copy-url" title="Copy current settings as URL">📋 Copy URL</button>
+    </div>
+    <div class="preset-save-row">
+      <input type="text" id="preset-name" placeholder="Preset name / Název předvolby">
+      <button id="btn-save-preset">Save</button>
+    </div>
+    <div class="preset-list" id="preset-list"></div>
   </div>
 </div>
 
@@ -649,6 +716,7 @@ function setupUI() {
       prevLE.left = null; prevLE.right = null;
       resize();
       recomputeTrail();
+      syncToURL();
     });
   }
 
@@ -672,10 +740,168 @@ function setupUI() {
 }
 
 // ============================================================
+//  URL STATE
+// ============================================================
+const PARAM_KEYS = ['crankR','rodLen','lever','attOff','wingL','pivH','pivS','fixA','pinA','speed'];
+
+function paramsToHash() {
+  const parts = PARAM_KEYS.map(k => k + '=' + P[k]);
+  return '#' + parts.join('&');
+}
+
+function loadFromHash() {
+  const h = location.hash.slice(1);
+  if (!h) return false;
+  let loaded = false;
+  for (const pair of h.split('&')) {
+    const [k, v] = pair.split('=');
+    if (PARAM_KEYS.includes(k) && v !== undefined) {
+      const num = parseFloat(v);
+      if (!isNaN(num)) { P[k] = num; loaded = true; }
+    }
+  }
+  return loaded;
+}
+
+function syncToURL() {
+  history.replaceState(null, '', paramsToHash());
+}
+
+function syncSlidersFromP() {
+  for (const [sid, vid, key, fmt] of sliders) {
+    const sl = document.getElementById(sid);
+    const vl = document.getElementById(vid);
+    sl.value = P[key];
+    vl.textContent = fmt(String(P[key]));
+  }
+}
+
+// ============================================================
+//  PRESETS (localStorage)
+// ============================================================
+const LS_KEY = 'ornithopter-presets';
+
+function loadPresets() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY)) || []; }
+  catch { return []; }
+}
+
+function savePresetsLS(presets) {
+  localStorage.setItem(LS_KEY, JSON.stringify(presets));
+}
+
+function renderPresets() {
+  const list = document.getElementById('preset-list');
+  const presets = loadPresets();
+  if (presets.length === 0) {
+    list.innerHTML = '<div class="preset-empty">No presets saved yet.</div>';
+    return;
+  }
+  list.innerHTML = '';
+  presets.forEach((pr, idx) => {
+    const item = document.createElement('div');
+    item.className = 'preset-item';
+
+    const nameEl = document.createElement('span');
+    nameEl.className = 'p-name';
+    nameEl.textContent = pr.name;
+    nameEl.title = 'Click to load / Klikni pro načtení';
+    nameEl.addEventListener('click', () => {
+      const data = pr.data;
+      for (const k of PARAM_KEYS) {
+        if (data[k] !== undefined) P[k] = data[k];
+      }
+      syncSlidersFromP();
+      prevLE.left = null; prevLE.right = null;
+      resize(); recomputeTrail(); syncToURL();
+    });
+
+    const renBtn = document.createElement('button');
+    renBtn.className = 'p-btn';
+    renBtn.textContent = '✏';
+    renBtn.title = 'Rename / Přejmenovat';
+    renBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      // Inline rename
+      const inp = document.createElement('input');
+      inp.value = pr.name;
+      nameEl.textContent = '';
+      nameEl.appendChild(inp);
+      inp.focus();
+      inp.select();
+      const finish = () => {
+        const nv = inp.value.trim();
+        if (nv) {
+          const ps = loadPresets();
+          ps[idx].name = nv;
+          savePresetsLS(ps);
+        }
+        renderPresets();
+      };
+      inp.addEventListener('blur', finish);
+      inp.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter') finish();
+        if (ev.key === 'Escape') renderPresets();
+      });
+    });
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'p-btn del';
+    delBtn.textContent = '✕';
+    delBtn.title = 'Delete / Smazat';
+    delBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const ps = loadPresets();
+      ps.splice(idx, 1);
+      savePresetsLS(ps);
+      renderPresets();
+    });
+
+    item.appendChild(nameEl);
+    item.appendChild(renBtn);
+    item.appendChild(delBtn);
+    list.appendChild(item);
+  });
+}
+
+function setupPresets() {
+  document.getElementById('btn-save-preset').addEventListener('click', () => {
+    const nameInput = document.getElementById('preset-name');
+    let name = nameInput.value.trim();
+    if (!name) name = 'Preset ' + (loadPresets().length + 1);
+    const data = {};
+    for (const k of PARAM_KEYS) data[k] = P[k];
+    const presets = loadPresets();
+    presets.push({ name, data });
+    savePresetsLS(presets);
+    nameInput.value = '';
+    renderPresets();
+  });
+
+  document.getElementById('btn-copy-url').addEventListener('click', () => {
+    syncToURL();
+    const url = location.href;
+    navigator.clipboard.writeText(url).then(() => {
+      const btn = document.getElementById('btn-copy-url');
+      btn.textContent = '✓ Copied!';
+      setTimeout(() => { btn.textContent = '📋 Copy URL'; }, 1500);
+    }).catch(() => {
+      prompt('Copy this URL:', url);
+    });
+  });
+
+  renderPresets();
+}
+
+// ============================================================
 //  INIT
 // ============================================================
+if (loadFromHash()) {
+  syncSlidersFromP();
+}
 resize();
 setupUI();
+setupPresets();
 recomputeTrail();
 requestAnimationFrame(tick);
 </script>
